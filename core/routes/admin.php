@@ -118,6 +118,14 @@ Route::middleware('admin')->group(function () {
         Route::post('status/{id}', 'status')->name('status');
     });
 
+    // Asset Management
+    Route::controller('AssetController')->name('asset.')->prefix('asset')->group(function () {
+        Route::get('categories', 'categories')->name('category.index');
+        Route::post('category/store', 'categoryStore')->name('category.store');
+        Route::get('investments', 'investments')->name('investment.index');
+        Route::post('investment/status', 'investmentStatus')->name('investment.status');
+    });
+
     // Users Manager
     Route::controller('ManageUsersController')->name('users.')->prefix('users')->group(function(){
         Route::get('/', 'allUsers')->name('all');

@@ -43,6 +43,10 @@
                                     </span>
                                      <br>
                                      <small> {{ $deposit->trx }} </small>
+                                     @if($deposit->asset_category_id)
+                                        <br>
+                                        <span class="badge badge--info p-1" style="font-size: 10px;">@lang('Asset: ') {{ __($deposit->assetCategory->name) }}</span>
+                                     @endif
                                 </td>
 
                                 <td>

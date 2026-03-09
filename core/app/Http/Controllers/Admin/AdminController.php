@@ -58,7 +58,12 @@ class AdminController extends Controller
         $withdrawals['total_withdraw_rejected'] = Withdrawal::rejected()->count();
         $withdrawals['total_withdraw_charge']   = Withdrawal::approved()->sum('charge');
 
-        return view('admin.dashboard', compact('pageTitle', 'widget', 'invest', 'chart', 'deposit', 'withdrawals'));
+        $assetInvest['total_amount']   = \App\Models\AssetInvestment::sum('amount');
+        $assetInvest['active_amount']  = \App\Models\AssetInvestment::where('status', 1)->sum('amount');
+        $assetInvest['pending_amount'] = \App\Models\AssetInvestment::where('status', 0)->sum('amount');
+        $assetInvest['total_count']    = \App\Models\AssetInvestment::count();
+
+        return view('admin.dashboard', compact('pageTitle', 'widget', 'invest', 'chart', 'deposit', 'withdrawals', 'assetInvest'));
     }
 
     public function depositAndWithdrawReport(Request $request)

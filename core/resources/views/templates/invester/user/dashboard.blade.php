@@ -229,7 +229,7 @@
                         </div>
                     </div>
                     <div class="g-asset__middle">
-                        <h3 class="g-asset__amount">$29,540.00</h3>
+                        <h3 class="g-asset__amount">${{ number_format($assetBalances['real-estate']['amount'] ?? 0, 2) }}</h3>
                     </div>
                     <div class="g-asset__bottom">
                         <i class="las la-building"></i>
@@ -249,7 +249,7 @@
                         </div>
                     </div>
                     <div class="g-asset__middle">
-                        <h3 class="g-asset__amount">$15,200.50</h3>
+                        <h3 class="g-asset__amount">${{ number_format($assetBalances['oil-gas']['amount'] ?? 0, 2) }}</h3>
                     </div>
                     <div class="g-asset__bottom">
                         <i class="las la-oil-can"></i>
@@ -269,7 +269,7 @@
                         </div>
                     </div>
                     <div class="g-asset__middle">
-                        <h3 class="g-asset__amount">$42,100.00</h3>
+                        <h3 class="g-asset__amount">${{ number_format($assetBalances['investment-banking']['amount'] ?? 0, 2) }}</h3>
                     </div>
                     <div class="g-asset__bottom">
                         <i class="las la-university"></i>
@@ -289,7 +289,7 @@
                         </div>
                     </div>
                     <div class="g-asset__middle">
-                        <h3 class="g-asset__amount">$8,450.75</h3>
+                        <h3 class="g-asset__amount">${{ number_format($assetBalances['stocks']['amount'] ?? 0, 2) }}</h3>
                     </div>
                     <div class="g-asset__bottom">
                         <i class="las la-chart-line"></i>

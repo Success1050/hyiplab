@@ -183,6 +183,21 @@
         </div><!-- dashboard-w1 end -->
     </div><!-- row end-->
 
+    <div class="row gy-4 mt-2">
+        <div class="col-xxl-3 col-sm-6">
+            <x-widget style="6" link="{{ route('admin.asset.investment.index') }}" icon="las la-wallet" title="Total Asset Invest" value="{{ showAmount($assetInvest['total_amount']) }}" bg="primary" />
+        </div><!-- dashboard-w1 end -->
+        <div class="col-xxl-3 col-sm-6">
+            <x-widget style="6" link="{{ route('admin.asset.investment.index') }}?status=1" icon="las la-check-circle" title="Active Asset Invest" value="{{ showAmount($assetInvest['active_amount']) }}" bg="success" />
+        </div><!-- dashboard-w1 end -->
+        <div class="col-xxl-3 col-sm-6">
+            <x-widget style="6" link="{{ route('admin.asset.investment.index') }}?status=0" icon="las la-spinner" title="Pending Asset Invest" value="{{ showAmount($assetInvest['pending_amount']) }}" bg="warning" />
+        </div><!-- dashboard-w1 end -->
+        <div class="col-xxl-3 col-sm-6">
+            <x-widget style="6" link="{{ route('admin.asset.investment.index') }}" icon="las la-list" title="Total Asset Investments" value="{{ $assetInvest['total_count'] }}" bg="info" />
+        </div><!-- dashboard-w1 end -->
+    </div><!-- row end-->
+
     <div class="row mb-none-30 mt-30">
         <div class="col-xl-6 mb-30">
             <div class="card">

@@ -14,6 +14,18 @@
                 <form action="{{ route('user.deposit.insert') }}" method="post" class="deposit-form">
                     @csrf
                     <input type="hidden" name="currency">
+                    @if($asset)
+                        <input type="hidden" name="asset_id" value="{{ $asset->id }}">
+                        <div class="alert alert-info border-0 mb-4 d-flex align-items-center gap-3" style="background: #eef2ff; color: #4338ca; border-radius: 12px;">
+                            <div style="width: 48px; height: 48px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                <i class="las {{ $asset->icon }}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0" style="color: #4338ca;">@lang('Investing in ' . $asset->name)</h6>
+                                <p class="mb-0 small" style="opacity: 0.8;">@lang('Your deposit will be tagged for this asset investment.')</p>
+                            </div>
+                        </div>
+                    @endif
                     <div class="gateway-card">
                         <div class="row justify-content-center gy-sm-4 gy-3">
                             <div class="col-lg-6">

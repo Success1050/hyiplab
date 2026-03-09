@@ -21,8 +21,10 @@ class PaymentController extends Controller
         $gatewayCurrency = GatewayCurrency::whereHas('method', function ($gate) {
             $gate->where('status', Status::ENABLE);
         })->with('method')->orderby('name')->get();
-        $pageTitle = 'Deposit Methods';
-        return view('Template::user.payment.deposit', compact('gatewayCurrency', 'pageTitle'));
+        $pageTitle = 'Deposit Funds';
+        $assetSlug = request()->asset;
+        $asset = \App\Models\AssetCategory::where('slug', $assetSlug)->where('status', 1)->first();
+        return view('Template::user.payment.deposit', compact('gatewayCurrency', 'pageTitle', 'asset'));
     }
 
     public function depositInsert(Request $request)
@@ -31,6 +33,7 @@ class PaymentController extends Controller
             'amount'   => 'required|numeric|gt:0',
             'gateway'  => 'required',
             'currency' => 'required',
+            'asset_id' => 'nullable|integer'
         ]);
 
         $user = auth()->user();
@@ -47,12 +50,12 @@ class PaymentController extends Controller
             return back()->withNotify($notify);
         }
 
-        $data = self::insertDeposit($gate, $request->amount);
+        $data = self::insertDeposit($gate, $request->amount, assetId: $request->asset_id);
         session()->put('Track', $data->trx);
         return to_route('user.deposit.confirm');
     }
 
-    public static function insertDeposit($gateway, $amount, $investPlan = null, $compoundTimes = 0)
+    public static function insertDeposit($gateway, $amount, $investPlan = null, $compoundTimes = 0, $assetId = null)
     {
         $user        = auth()->user();
         $charge      = $gateway->fixed_charge + ($amount * $gateway->percent_charge / 100);
@@ -62,6 +65,9 @@ class PaymentController extends Controller
         $data = new Deposit();
         if ($investPlan) {
             $data->plan_id = $investPlan->id;
+        }
+        if ($assetId) {
+            $data->asset_category_id = $assetId;
         }
         $data->user_id         = $user->id;
         $data->method_code     = $gateway->method_code;
@@ -139,7 +145,6 @@ class PaymentController extends Controller
             $user->deposit_wallet += $deposit->amount;
             $user->save();
 
-
             $methodName = $deposit->methodName();
 
             $transaction               = new Transaction();
@@ -154,7 +159,6 @@ class PaymentController extends Controller
             $transaction->remark       = 'deposit';
             $transaction->save();
 
-
             if (!$isManual) {
                 $adminNotification            = new AdminNotification();
                 $adminNotification->user_id   = $user->id;
@@ -163,6 +167,34 @@ class PaymentController extends Controller
                 $adminNotification->save();
             }
 
+            // Asset Investment Integration
+            if ($deposit->asset_category_id) {
+                $asset = \App\Models\AssetCategory::find($deposit->asset_category_id);
+                if ($asset) {
+                    $investment = new \App\Models\AssetInvestment();
+                    $investment->user_id = $user->id;
+                    $investment->asset_category_id = $asset->id;
+                    $investment->amount = $deposit->amount;
+                    $investment->status = 1; // Active
+                    $investment->save();
+
+                    // Deduct from balance for the investment
+                    $user->deposit_wallet -= $deposit->amount;
+                    $user->save();
+
+                    $transaction               = new Transaction();
+                    $transaction->user_id      = $user->id;
+                    $transaction->amount       = $deposit->amount;
+                    $transaction->post_balance = $user->deposit_wallet;
+                    $transaction->charge       = 0;
+                    $transaction->trx_type     = '-';
+                    $transaction->details      = 'Investment in ' . $asset->name;
+                    $transaction->trx          = getTrx();
+                    $transaction->wallet_type  = 'deposit_wallet';
+                    $transaction->remark       = 'asset_investment';
+                    $transaction->save();
+                }
+            }
 
             $general = gs();
             if ($general->deposit_commission) {

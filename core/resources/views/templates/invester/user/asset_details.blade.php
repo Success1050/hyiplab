@@ -50,10 +50,18 @@
             <div class="a-banner__content">
                 <h6 class="a-banner__title">@lang('Invest in ' . $asset['name'])</h6>
                 <p class="a-banner__text">@lang('Open a customized ' . $asset['name'] . ' portfolio to start growing your assets globally.')</p>
-                <a href="{{ route('plan') }}" class="a-banner__btn">
-                    @lang('Get investment details')
-                    <i class="las la-angle-right"></i>
-                </a>
+                <div class="a-banner__buttons">
+                    <a href="{{ route('user.deposit.index') }}?asset={{ $type }}" class="a-banner__btn">
+                        @lang('Invest')
+                        <i class="las la-angle-right"></i>
+                    </a>
+                    @if($type !== 'stocks')
+                    <a href="{{ route('user.asset.contract', $type) }}" class="a-banner__btn a-banner__btn--outline">
+                        @lang('Contract')
+                        <i class="las la-file-contract"></i>
+                    </a>
+                    @endif
+                </div>
             </div>
             <div class="a-banner__visual">
                 <i class="las {{ $asset['icon'] }}"></i>
@@ -227,6 +235,14 @@
         margin-bottom: 15px;
         font-weight: 500;
     }
+
+    /* Banner Buttons Container */
+    .a-banner__buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
     .a-banner__btn {
         display: inline-flex;
         align-items: center;
@@ -238,11 +254,27 @@
         font-size: 13px;
         font-weight: 600;
         text-decoration: none !important;
-        transition: all 0.2s;
+        transition: all 0.25s ease;
+        border: 2px solid #4c7de6;
     }
     .a-banner__btn i { font-size: 15px; }
     .a-banner__btn:hover {
         background: #3b6dd4;
+        border-color: #3b6dd4;
+        box-shadow: 0 5px 15px rgba(76,125,230,0.3);
+        transform: translateY(-1px);
+    }
+
+    /* Outline variant for Contract button */
+    .a-banner__btn--outline {
+        background: transparent;
+        color: #4c7de6 !important;
+        border: 2px solid #4c7de6;
+    }
+    .a-banner__btn--outline:hover {
+        background: #4c7de6;
+        color: #fff !important;
+        border-color: #4c7de6;
         box-shadow: 0 5px 15px rgba(76,125,230,0.3);
     }
 

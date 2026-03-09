@@ -31,7 +31,6 @@ class UserController extends Controller
                 'name'    => 'Real Estate',
                 'icon'    => 'la-building',
                 'color'   => 'emerald',
-                'amount'  => '29,540.00',
                 'ticker'  => 'RE',
                 'desc'    => 'Property & Real Estate'
             ],
@@ -39,7 +38,6 @@ class UserController extends Controller
                 'name'    => 'Oil & Gas',
                 'icon'    => 'la-oil-can',
                 'color'   => 'amber',
-                'amount'  => '15,200.50',
                 'ticker'  => 'OIL',
                 'desc'    => 'Energy & Natural Resources'
             ],
@@ -47,7 +45,6 @@ class UserController extends Controller
                 'name'    => 'Investment Banking',
                 'icon'    => 'la-university',
                 'color'   => 'indigo',
-                'amount'  => '42,100.00',
                 'ticker'  => 'IB',
                 'desc'    => 'Financial Services & Banking'
             ],
@@ -55,7 +52,6 @@ class UserController extends Controller
                 'name'    => 'Stocks',
                 'icon'    => 'la-chart-line',
                 'color'   => 'rose',
-                'amount'  => '8,450.75',
                 'ticker'  => 'STX',
                 'desc'    => 'Equities & Stock Market'
             ]
@@ -66,9 +62,53 @@ class UserController extends Controller
         }
 
         $asset = $assets[$type];
+        
+        // Fetch real balance from DB
+        $category = \App\Models\AssetCategory::where('slug', $type)->first();
+        $realAmount = 0;
+        if($category){
+            $realAmount = \App\Models\AssetInvestment::where('user_id', auth()->id())
+                ->where('asset_category_id', $category->id)
+                ->where('status', 1)
+                ->sum('amount');
+        }
+        $asset['amount'] = number_format($realAmount, 2);
+
         $pageTitle = $asset['name'] . ' Details';
 
         return view('Template::user.asset_details', compact('pageTitle', 'asset', 'type'));
+    }
+
+    public function assetContract($type)
+    {
+        $category = \App\Models\AssetCategory::where('slug', $type)->where('status', 1)->firstOrFail();
+        $user      = auth()->user();
+        $pageTitle = __($category->name) . ' Investment Contract';
+        $contract  = $category->details;
+        
+        // Ensure contract is an array and has default values to prevent crashes
+        $defaultDetails = [
+            'name' => $category->name,
+            'unit_label' => 'Units',
+            'price_label' => 'Price per Unit',
+            'price_per_unit' => 0,
+            'min_units' => 0,
+            'min_capital' => 0,
+            'estimated_term' => 'N/A',
+            'projected_return' => '0%',
+            'return_min_pct' => 0,
+            'return_max_pct' => 0,
+            'risk_text' => 'Investment involves risk.',
+            'durations' => ['12 Months', '24 Months', '36 Months']
+        ];
+
+        if ($contract) {
+            $contract = array_merge($defaultDetails, (array)$contract);
+        } else {
+            $contract = $defaultDetails;
+        }
+
+        return view('Template::user.asset_contract', compact('pageTitle', 'contract', 'type', 'user', 'category'));
     }
 
     public function home()
@@ -84,6 +124,21 @@ class UserController extends Controller
         $data['totalTicket']      = SupportTicket::where('user_id', $user->id)->count();
         $data['transactions']     = $data['user']->transactions->sortByDesc('id')->take(8);
         $data['referralEarnings'] = Transaction::where('remark', 'referral_commission')->where('user_id', auth()->id())->sum('amount');
+        
+        // Asset balances
+        $categories = \App\Models\AssetCategory::where('status', 1)->get();
+        $assetData = [];
+        foreach($categories as $category){
+            $amount = \App\Models\AssetInvestment::where('user_id', $user->id)
+                ->where('asset_category_id', $category->id)
+                ->where('status', 1)
+                ->sum('amount');
+            
+            $assetData[$category->slug] = [
+                'amount' => $amount
+            ];
+        }
+        $data['assetBalances'] = $assetData;
 
         $data['submittedDeposits']  = Deposit::where('status', '!=', Status::PAYMENT_INITIATE)->where('user_id', $user->id)->sum('amount');
         $data['successfulDeposits'] = Deposit::successful()->where('user_id', $user->id)->sum('amount');

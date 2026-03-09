@@ -30,6 +30,12 @@
                                 @endif
                             </span>
                         </li>
+                        @if($deposit->asset_category_id)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @lang('Asset Investment')
+                                <span class="fw-bold text--info">{{ __($deposit->assetCategory->name) }}</span>
+                            </li>
+                        @endif
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             @lang('Amount')
                             <span class="fw-bold">{{ showAmount($deposit->amount) }}</span>

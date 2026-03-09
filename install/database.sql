@@ -176,7 +176,41 @@ CREATE TABLE `deposits` (
   `admin_feedback` varchar(255) DEFAULT NULL,
   `success_url` varchar(255) DEFAULT NULL,
   `failed_url` varchar(255) DEFAULT NULL,
-  `last_cron` int(11) DEFAULT 0,
+  `asset_category_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_categories`
+--
+
+CREATE TABLE `asset_categories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `icon` varchar(255) DEFAULT NULL,
+  `color` varchar(255) DEFAULT NULL,
+  `details` text DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_investments`
+--
+
+CREATE TABLE `asset_investments` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `asset_category_id` bigint(20) UNSIGNED NOT NULL,
+  `amount` decimal(28,8) NOT NULL DEFAULT 0.00000000,
+  `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1=>pending, 2=>active, 3=>closed',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1297,10 +1331,25 @@ ALTER TABLE `cron_schedules`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `asset_categories`
+--
+ALTER TABLE `asset_categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `asset_investments`
+--
+ALTER TABLE `asset_investments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `asset_category_id` (`asset_category_id`);
+
+--
 -- Indexes for table `deposits`
 --
 ALTER TABLE `deposits`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `asset_category_id` (`asset_category_id`);
 
 --
 -- Indexes for table `device_tokens`
@@ -1555,6 +1604,18 @@ ALTER TABLE `cron_job_logs`
 --
 ALTER TABLE `cron_schedules`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `asset_categories`
+--
+ALTER TABLE `asset_categories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `asset_investments`
+--
+ALTER TABLE `asset_investments`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `deposits`
@@ -1851,6 +1912,12 @@ INSERT INTO `frontends` (`id`, `data_keys`, `data_values`, `seo_content`, `tempn
 (NULL, 'user_support_email.content', '{\"email\":\"hello@example.com\"}', NULL, 'hyip_dark', '', '2025-06-24 06:10:26', '2025-06-24 06:10:26'),
 (NULL, 'kyc.content', '{\"required\":\"Please submit the required KYC information to verify yourself. Otherwise, you couldn\'t make any withdrawal requests to the system.\",\"pending\":\"Your submitted KYC information is pending for admin approval. Please wait till that.\",\"reject\":\"Your KYC document has been rejected. Please resubmit the document for further review.\"}', NULL, 'hyip_dark', '', '2025-06-25 04:25:00', '2025-06-25 04:25:00'),
 (NULL, 'register_disable.content', '{\"has_image\":\"1\",\"heading\":\"Registration Currently Disabled\",\"subheading\":\"Registration unavailable: Please check back later for updates. Thank you for your patience.\",\"button_name\":\"Go Home\",\"button_url\":\"\\/\",\"image\":\"685d1c85b403b1750932613.png\"}', NULL, 'hyip_dark', '', '2025-06-26 04:10:00', '2025-06-26 04:10:28');
+
+INSERT INTO `asset_categories` (`id`, `name`, `slug`, `icon`, `color`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Real Estate', 'real-estate', 'las la-building', 'primary', 1, NOW(), NOW()),
+(2, 'Oil & Gas', 'oil-gas', 'las la-oil-can', 'warning', 1, NOW(), NOW()),
+(3, 'Investment Banking', 'investment-banking', 'las la-university', 'info', 1, NOW(), NOW()),
+(4, 'Stocks', 'stocks', 'las la-chart-line', 'success', 1, NOW(), NOW());
 
 
 

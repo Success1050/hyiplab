@@ -57,6 +57,7 @@ Route::middleware('auth', 'delete.status')->name('user.')->group(function () {
             Route::controller('UserController')->group(function () {
                 Route::get('dashboard', 'home')->name('home');
                 Route::get('asset/{type}', 'assetDetails')->name('asset.details');
+                Route::get('asset/{type}/contract', 'assetContract')->name('asset.contract');
                 Route::get('download-attachments/{file_hash}', 'downloadAttachment')->name('download.attachment');
 
                 //2FA
